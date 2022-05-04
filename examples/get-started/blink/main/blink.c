@@ -15,7 +15,10 @@
 /* Can use project configuration menu (idf.py menuconfig) to choose the GPIO to blink,
    or you can edit the following line and set a number here.
 */
-#define BLINK_GPIO CONFIG_BLINK_GPIO
+#define BLINK_GPIO_R 3
+#define BLINK_GPIO_G 4
+#define BLINK_GPIO_B 5
+#define BLINK_INTERVAL 1000
 
 void app_main(void)
 {
@@ -25,17 +28,40 @@ void app_main(void)
        Technical Reference for a list of pads and their default
        functions.)
     */
-    gpio_reset_pin(BLINK_GPIO);
+    gpio_reset_pin(BLINK_GPIO_R);
     /* Set the GPIO as a push/pull output */
-    gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
+    gpio_set_direction(BLINK_GPIO_R, GPIO_MODE_OUTPUT);
+
+    gpio_reset_pin(BLINK_GPIO_G);
+    gpio_set_direction(BLINK_GPIO_G, GPIO_MODE_OUTPUT);
+
+    gpio_reset_pin(BLINK_GPIO_B);
+    gpio_set_direction(BLINK_GPIO_B, GPIO_MODE_OUTPUT);
     while(1) {
-        /* Blink off (output low) */
-        printf("Turning off the LED\n");
-        gpio_set_level(BLINK_GPIO, 0);
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        printf("Turning on the red LED\n");
         /* Blink on (output high) */
-        printf("Turning on the LED\n");
-        gpio_set_level(BLINK_GPIO, 1);
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        gpio_set_level(BLINK_GPIO_R, 1);
+        vTaskDelay(BLINK_INTERVAL / portTICK_PERIOD_MS);
+        /* Blink off (output low) */
+        gpio_set_level(BLINK_GPIO_R, 0);
+
+        printf("Turning on the green LED\n");
+        gpio_set_level(BLINK_GPIO_G, 1);
+        vTaskDelay(BLINK_INTERVAL / portTICK_PERIOD_MS);
+        gpio_set_level(BLINK_GPIO_G, 0);
+
+        printf("Turning on the blue LED\n");
+        gpio_set_level(BLINK_GPIO_B, 1);
+        vTaskDelay(BLINK_INTERVAL / portTICK_PERIOD_MS);
+        gpio_set_level(BLINK_GPIO_B, 0);
+
+        printf("Turning on all LEDs\n");
+        gpio_set_level(BLINK_GPIO_R, 1);
+        gpio_set_level(BLINK_GPIO_G, 1);
+        gpio_set_level(BLINK_GPIO_B, 1);
+        vTaskDelay(BLINK_INTERVAL / portTICK_PERIOD_MS);
+        gpio_set_level(BLINK_GPIO_R, 0);
+        gpio_set_level(BLINK_GPIO_G, 0);
+        gpio_set_level(BLINK_GPIO_B, 0);
     }
 }
