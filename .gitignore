@@ -30,6 +30,7 @@ components/**/sdkconfig.old
 examples/**/sdkconfig
 examples/**/sdkconfig.old
 examples/**/build
+examples/esp-drone
 
 # Doc build artifacts
 docs/_build/
