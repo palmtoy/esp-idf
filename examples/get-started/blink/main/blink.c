@@ -15,6 +15,7 @@
 /* Can use project configuration menu (idf.py menuconfig) to choose the GPIO to blink,
    or you can edit the following line and set a number here.
 */
+#define BLINK_GPIO_BLUE 2  // ESP32S on board Blue LED
 #define BLINK_GPIO_R 3
 #define BLINK_GPIO_G 4
 #define BLINK_GPIO_B 5
@@ -37,6 +38,10 @@ void app_main(void)
 
     gpio_reset_pin(BLINK_GPIO_B);
     gpio_set_direction(BLINK_GPIO_B, GPIO_MODE_OUTPUT);
+
+    gpio_reset_pin(BLINK_GPIO_BLUE);
+    gpio_set_direction(BLINK_GPIO_BLUE, GPIO_MODE_OUTPUT);
+
     while(1) {
         printf("Turning on the red LED\n");
         /* Blink on (output high) */
@@ -55,13 +60,19 @@ void app_main(void)
         vTaskDelay(BLINK_INTERVAL / portTICK_PERIOD_MS);
         gpio_set_level(BLINK_GPIO_B, 0);
 
+        gpio_set_level(BLINK_GPIO_BLUE, 1);
+        vTaskDelay(BLINK_INTERVAL / portTICK_PERIOD_MS);
+        gpio_set_level(BLINK_GPIO_BLUE, 0);
+
         printf("Turning on all LEDs\n");
         gpio_set_level(BLINK_GPIO_R, 1);
         gpio_set_level(BLINK_GPIO_G, 1);
         gpio_set_level(BLINK_GPIO_B, 1);
+        gpio_set_level(BLINK_GPIO_BLUE, 1);
         vTaskDelay(BLINK_INTERVAL / portTICK_PERIOD_MS);
         gpio_set_level(BLINK_GPIO_R, 0);
         gpio_set_level(BLINK_GPIO_G, 0);
         gpio_set_level(BLINK_GPIO_B, 0);
+        gpio_set_level(BLINK_GPIO_BLUE, 0);
     }
 }
