@@ -18,6 +18,9 @@
 #define GPIO_INPUT_PIN_SEL 1ULL << GPIO_INPUT_IO_0
 #define ESP_INTR_FLAG_DEFAULT 0
 
+#define BLINK_GPIO_BLUE 2  // ESP32S on board Blue LED
+#define BLINK_INTERVAL 1000
+
 static QueueHandle_t gpio_evt_queue = NULL;
 
 static void IRAM_ATTR gpio_isr_handler(void *arg) {
@@ -30,14 +33,20 @@ static void gpio_task_example(void *arg) {
   for (;;) {
     if (xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
       printf("GPIO[%ld] intr, val: %d\n", io_num, gpio_get_level(io_num));
+      gpio_set_level(BLINK_GPIO_BLUE, 1); // on
+      vTaskDelay(BLINK_INTERVAL / portTICK_PERIOD_MS);
+      gpio_set_level(BLINK_GPIO_BLUE, 0); // off
     }
   }
 }
 
 void app_main(void) {
+  gpio_reset_pin(BLINK_GPIO_BLUE);
+  gpio_set_direction(BLINK_GPIO_BLUE, GPIO_MODE_OUTPUT);
+
   gpio_config_t io_conf = {}; // zero-initialize the config structure.
-  // io_conf.intr_type = GPIO_INTR_POSEDGE;  // 仅上升沿产生中断
-  io_conf.intr_type = GPIO_INTR_ANYEDGE;     // 上升沿 & 下降沿都产生中断
+  io_conf.intr_type = GPIO_INTR_POSEDGE;  // 仅上升沿产生中断
+  // io_conf.intr_type = GPIO_INTR_ANYEDGE;     // 上升沿 & 下降沿都产生中断
   io_conf.pin_bit_mask = GPIO_INPUT_PIN_SEL; // bit mask of the pins, use GPIO0 here
   io_conf.mode = GPIO_MODE_INPUT;            // set as input mode
   io_conf.pull_up_en = 1;                    // enable pull-up mode
