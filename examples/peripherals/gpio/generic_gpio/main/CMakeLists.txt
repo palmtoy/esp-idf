@@ -1,2 +1,2 @@
-idf_component_register(SRCS "gpio_example_main2.c"
+idf_component_register(SRCS "infrared-ray-ctrl.c"
                     INCLUDE_DIRS ".")
