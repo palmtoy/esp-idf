@@ -13,11 +13,11 @@ extern "C" {
 #include "driver/gpio.h"
 #include "esp_log.h"
 
-#define GPIO_INPUT_INFRARED_RAY GPIO_NUM_26 // input, pulled up, interrupt from rising edge
+#define GPIO_INPUT_INFRARED_RAY GPIO_NUM_19 // input, pulled up, interrupt from rising edge
 #define GPIO_INPUT_PIN_SEL      (1ULL << GPIO_INPUT_INFRARED_RAY)
 #define ESP_INTR_FLAG_DEFAULT   0
-#define GPIO_LED_BLUE           GPIO_NUM_2 // esp32s on board blue LED
-#define LED_BLINK_INTERVAL      1000
+#define GPIO_LED_BLUE           GPIO_NUM_4 // esp32c3 on board green LED
+#define LED_BLINK_INTERVAL      1150
 #define TASK_LOOP_PRIORITY      2
 #define G_X_QUEUE_LENGTH        16
 #define G_TASK_STACK_SIZE       (1024 * 2) // 2 KiB
