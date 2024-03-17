@@ -6,6 +6,7 @@ extern "C" {
 
 #include <string.h>
 #include <stdlib.h>
+#include <inttypes.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_log.h"
@@ -13,8 +14,8 @@ extern "C" {
 #include "esp_http_client.h"
 
 #define MAX_HTTP_OUTPUT_BUFFER  256
-#define HTTP_SRV_HOST = "smartonoff-f158.local"
-#define HTTP_SRV_PORT = 80
+#define HTTP_SRV_HOST "192.168.0.109"
+#define HTTP_SRV_PORT 8081
 
 static const char *HTTP_CLI_TAG = "HTTP_CLIENT";
 
@@ -24,6 +25,9 @@ esp_err_t _httpEvtHandler(esp_http_client_event_t *evt) {
   switch (evt->event_id) {
     case HTTP_EVENT_ERROR:
       ESP_LOGD(HTTP_CLI_TAG, "HTTP_EVENT_ERROR");
+      break;
+    case HTTP_EVENT_REDIRECT:
+      ESP_LOGD(HTTP_CLI_TAG, "HTTP_EVENT_REDIRECT");
       break;
     case HTTP_EVENT_ON_CONNECTED:
       ESP_LOGD(HTTP_CLI_TAG, "HTTP_EVENT_ON_CONNECTED");
@@ -89,12 +93,12 @@ esp_err_t _httpEvtHandler(esp_http_client_event_t *evt) {
   return ESP_OK;
 }
 
-void sendHttpRequest(char* pStrQuery) { // pStrQuery: switch_on / switch_off
+void sendHttpRequest(char* pStrQuery) {
   esp_http_client_config_t config = {};
   config.host = HTTP_SRV_HOST,
   config.port = HTTP_SRV_PORT,
   config.method = HTTP_METHOD_GET;
-  config.path = "/";
+  config.path = "/echo";
   config.query = pStrQuery;
   config.transport_type = HTTP_TRANSPORT_OVER_TCP;
   config.event_handler = _httpEvtHandler;
@@ -110,7 +114,7 @@ void sendHttpRequest(char* pStrQuery) { // pStrQuery: switch_on / switch_off
       char output_buffer[MAX_HTTP_OUTPUT_BUFFER] = { 0 }; // Buffer to store response of http request
       int data_read = esp_http_client_read_response(client, output_buffer, MAX_HTTP_OUTPUT_BUFFER);
       if (data_read >= 0) {
-        ESP_LOGI(HTTP_CLI_TAG, "HTTP GET Status = %d, data_read = %d, content_length = %d",
+        ESP_LOGI(HTTP_CLI_TAG, "HTTP GET Status = %d, data_read = %d, content_length = %" PRId64,
           esp_http_client_get_status_code(client), data_read, esp_http_client_get_content_length(client));
         ESP_LOGI(HTTP_CLI_TAG, "HTTP GET output_buffer = %s", output_buffer);
       } else {

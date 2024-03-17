@@ -12,6 +12,7 @@ extern "C" {
 #include "freertos/queue.h"
 #include "driver/gpio.h"
 #include "esp_log.h"
+#include "httpClient.h"
 
 #define GPIO_INPUT_INFRARED_RAY GPIO_NUM_19 // input, pulled up, interrupt from rising edge
 #define GPIO_INPUT_PIN_SEL      (1ULL << GPIO_INPUT_INFRARED_RAY)
@@ -20,7 +21,7 @@ extern "C" {
 #define LED_BLINK_INTERVAL      1150
 #define TASK_LOOP_PRIORITY      2
 #define G_X_QUEUE_LENGTH        16
-#define G_TASK_STACK_SIZE       (1024 * 2) // 2 KiB
+#define G_TASK_STACK_SIZE       (1024 * 4) // 4 KiB
 
 static const char* PIR_CTRL_TAG = "PIR_CTRL"; // PIR: passive infrared ( sensor )
 static QueueHandle_t G_X_QUEUE_OBJ = NULL;
@@ -35,6 +36,8 @@ static void gpio_task_q_recv(void *arg) {
   for (;;) {
     if (xQueueReceive(G_X_QUEUE_OBJ, &io_num, portMAX_DELAY)) {
       ESP_LOGI(PIR_CTRL_TAG, "GPIO[%d] interrupt, level: %d", io_num, gpio_get_level(io_num));
+      char pStrQuery[] = "name=LZG";
+      sendHttpRequest(pStrQuery);
       gpio_set_level(GPIO_LED_BLUE, 1); // on
       vTaskDelay(LED_BLINK_INTERVAL / portTICK_PERIOD_MS);
       gpio_set_level(GPIO_LED_BLUE, 0); // off
