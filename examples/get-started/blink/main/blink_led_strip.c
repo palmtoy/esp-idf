@@ -34,6 +34,7 @@ static void blink_led()
   {
     do_set_led_hsv(hue, saturation, brightness);
   }
+  led_strip_clear(led_strip);
 }
 
 static void configure_led()
@@ -56,10 +57,10 @@ static void configure_led()
 void app_main()
 {
   configure_led();
+  srand((unsigned)time(NULL));
   while (true)
   {
-    srand((unsigned)time(NULL));
     blink_led();
-    led_strip_clear(led_strip);
+    vTaskDelay(300 / portTICK_PERIOD_MS);
   }
 }
