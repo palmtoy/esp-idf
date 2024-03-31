@@ -14,8 +14,7 @@ extern "C" {
 #include "esp_http_client.h"
 
 #define MAX_HTTP_OUTPUT_BUFFER  256
-// #define HTTP_SRV_HOST "smartonoff-2d5f.local"
-#define HTTP_SRV_HOST "192.168.0.119"
+#define HTTP_SRV_HOST "smartonoff-2d5f"
 #define HTTP_SRV_PORT 80
 
 static const char *HTTP_CLI_TAG = "HTTP_CLIENT";
@@ -95,8 +94,14 @@ esp_err_t _httpEvtHandler(esp_http_client_event_t *evt) {
 }
 
 void sendHttpRequest(char* pStrQuery) {
+  esp_ip4_addr_t ipAddr;
+  ipAddr.addr = 0;
+  ESP_ERROR_CHECK(mdns_query_a(HTTP_SRV_HOST, 3000, &ipAddr));
+  char strIpAddr[16] = {0};
+  sprintf(strIpAddr, "%s", inet_ntoa(ipAddr.addr));
+  ESP_LOGI(HTTP_CLI_TAG, "%s server's ip: %s", HTTP_SRV_HOST, strIpAddr);
   esp_http_client_config_t config = {};
-  config.host = HTTP_SRV_HOST,
+  config.host = strIpAddr,
   config.port = HTTP_SRV_PORT,
   config.method = HTTP_METHOD_GET;
   config.path = "/";
