@@ -94,12 +94,11 @@ esp_err_t _httpEvtHandler(esp_http_client_event_t *evt) {
 }
 
 void sendHttpRequest(char* pStrQuery) {
-  esp_ip4_addr_t ipAddr;
-  ipAddr.addr = 0;
+  esp_ip4_addr_t ipAddr = {0};
   ESP_ERROR_CHECK(mdns_query_a(HTTP_SRV_HOST, 3000, &ipAddr));
   char strIpAddr[16] = {0};
-  sprintf(strIpAddr, "%s", inet_ntoa(ipAddr.addr));
-  ESP_LOGI(HTTP_CLI_TAG, "%s server's ip: %s", HTTP_SRV_HOST, strIpAddr);
+  sprintf(strIpAddr, "%s", inet_ntoa(ipAddr));
+  ESP_LOGI(HTTP_CLI_TAG, "%s.local server's ip: %s", HTTP_SRV_HOST, strIpAddr);
   esp_http_client_config_t config = {};
   config.host = strIpAddr,
   config.port = HTTP_SRV_PORT,
