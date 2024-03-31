@@ -36,7 +36,7 @@ static void gpio_task_q_recv(void *arg) {
   for (;;) {
     if (xQueueReceive(G_X_QUEUE_OBJ, &io_num, portMAX_DELAY)) {
       ESP_LOGI(PIR_CTRL_TAG, "GPIO[%d] interrupt, level: %d", io_num, gpio_get_level(io_num));
-      char pStrQuery[] = "name=LZG";
+      char pStrQuery[] = "switch";
       sendHttpRequest(pStrQuery);
       gpio_set_level(GPIO_LED_BLUE, 1); // on
       vTaskDelay(LED_BLINK_INTERVAL / portTICK_PERIOD_MS);

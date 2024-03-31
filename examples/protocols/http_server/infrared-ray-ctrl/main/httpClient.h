@@ -14,8 +14,9 @@ extern "C" {
 #include "esp_http_client.h"
 
 #define MAX_HTTP_OUTPUT_BUFFER  256
-#define HTTP_SRV_HOST "192.168.0.109"
-#define HTTP_SRV_PORT 8081
+// #define HTTP_SRV_HOST "smartonoff-2d5f.local"
+#define HTTP_SRV_HOST "192.168.0.119"
+#define HTTP_SRV_PORT 80
 
 static const char *HTTP_CLI_TAG = "HTTP_CLIENT";
 
@@ -98,7 +99,7 @@ void sendHttpRequest(char* pStrQuery) {
   config.host = HTTP_SRV_HOST,
   config.port = HTTP_SRV_PORT,
   config.method = HTTP_METHOD_GET;
-  config.path = "/echo";
+  config.path = "/";
   config.query = pStrQuery;
   config.transport_type = HTTP_TRANSPORT_OVER_TCP;
   config.event_handler = _httpEvtHandler;
