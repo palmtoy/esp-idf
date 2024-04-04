@@ -14,10 +14,10 @@ extern "C" {
 #include "esp_log.h"
 #include "httpClient.h"
 
-#define GPIO_INPUT_INFRARED_RAY GPIO_NUM_19 // input, pulled up, interrupt from rising edge
+#define GPIO_INPUT_INFRARED_RAY GPIO_NUM_9 // input, pulled up, interrupt from rising edge
 #define GPIO_INPUT_PIN_SEL      (1ULL << GPIO_INPUT_INFRARED_RAY)
 #define ESP_INTR_FLAG_DEFAULT   0
-#define GPIO_LED_BLUE           GPIO_NUM_4 // esp32c3 on board green LED
+#define GPIO_LED_BLUE           GPIO_NUM_8 // esp32c3-mini on board RGB LED
 #define TASK_LOOP_PRIORITY      2
 #define G_X_QUEUE_LENGTH        16
 #define G_TASK_STACK_SIZE       (1024 * 4) // 4 KiB
