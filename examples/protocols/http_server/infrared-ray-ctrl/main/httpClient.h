@@ -97,7 +97,7 @@ void sendHttpRequest(char* pStrQuery) {
   esp_ip4_addr_t ipAddr = {0};
   esp_err_t queryRet = mdns_query_a(HTTP_SRV_HOST, 5000, &ipAddr); // dns query timeout: 5s
   if (ESP_OK != queryRet) {
-    ESP_LOGW(HTTP_CLI_TAG, "DNS query %s.local server's ip failed", HTTP_SRV_HOST);
+    ESP_LOGW(HTTP_CLI_TAG, "DNS query %s.local server's ip failed ( ErrorCode = %d )", HTTP_SRV_HOST, queryRet);
     return;
   }
   char strIpAddr[16] = {0};
