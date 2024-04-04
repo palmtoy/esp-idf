@@ -18,7 +18,6 @@ extern "C" {
 #define GPIO_INPUT_PIN_SEL      (1ULL << GPIO_INPUT_INFRARED_RAY)
 #define ESP_INTR_FLAG_DEFAULT   0
 #define GPIO_LED_BLUE           GPIO_NUM_4 // esp32c3 on board green LED
-#define LED_BLINK_INTERVAL      1150
 #define TASK_LOOP_PRIORITY      2
 #define G_X_QUEUE_LENGTH        16
 #define G_TASK_STACK_SIZE       (1024 * 4) // 4 KiB
@@ -35,11 +34,10 @@ static void gpio_task_q_recv(void *arg) {
   gpio_num_t io_num;
   for (;;) {
     if (xQueueReceive(G_X_QUEUE_OBJ, &io_num, portMAX_DELAY)) {
+      gpio_set_level(GPIO_LED_BLUE, 1); // on
       ESP_LOGI(PIR_CTRL_TAG, "GPIO[%d] interrupt, level: %d", io_num, gpio_get_level(io_num));
       char pStrQuery[] = "switch";
       sendHttpRequest(pStrQuery);
-      gpio_set_level(GPIO_LED_BLUE, 1); // on
-      vTaskDelay(LED_BLINK_INTERVAL / portTICK_PERIOD_MS);
       gpio_set_level(GPIO_LED_BLUE, 0); // off
     }
   }
