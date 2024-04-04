@@ -13,11 +13,11 @@ extern "C" {
 #include "driver/gpio.h"
 #include "esp_log.h"
 #include "httpClient.h"
+#include "ledStrip.h"
 
 #define GPIO_INPUT_INFRARED_RAY GPIO_NUM_9 // input, pulled up, interrupt from rising edge
 #define GPIO_INPUT_PIN_SEL      (1ULL << GPIO_INPUT_INFRARED_RAY)
 #define ESP_INTR_FLAG_DEFAULT   0
-#define GPIO_LED_BLUE           GPIO_NUM_8 // esp32c3-mini on board RGB LED
 #define TASK_LOOP_PRIORITY      2
 #define G_X_QUEUE_LENGTH        16
 #define G_TASK_STACK_SIZE       (1024 * 4) // 4 KiB
@@ -34,19 +34,16 @@ static void gpio_task_q_recv(void *arg) {
   gpio_num_t io_num;
   for (;;) {
     if (xQueueReceive(G_X_QUEUE_OBJ, &io_num, portMAX_DELAY)) {
-      gpio_set_level(GPIO_LED_BLUE, 1); // on
       ESP_LOGI(PIR_CTRL_TAG, "GPIO[%d] interrupt, level: %d", io_num, gpio_get_level(io_num));
       char pStrQuery[] = "switch";
       sendHttpRequest(pStrQuery);
-      gpio_set_level(GPIO_LED_BLUE, 0); // off
+      led_fade_in();
+      led_fade_out();
     }
   }
 }
 
 void initPIRSensorLoop() {
-  gpio_reset_pin(GPIO_LED_BLUE);
-  gpio_set_direction(GPIO_LED_BLUE, GPIO_MODE_OUTPUT);
-
   gpio_config_t io_conf = {};                // zero-initialize the config structure.
   io_conf.intr_type = GPIO_INTR_POSEDGE;     // 仅上升沿产生中断
   io_conf.pin_bit_mask = GPIO_INPUT_PIN_SEL; // bit mask of the pins, use GPIO* here
@@ -64,6 +61,7 @@ void initPIRSensorLoop() {
   // hook isr handler for specific gpio pin
   gpio_isr_handler_add(GPIO_INPUT_INFRARED_RAY, gpio_isr_handler, (void *)GPIO_INPUT_INFRARED_RAY);
 
+  init_led_strip();
   ESP_LOGI(PIR_CTRL_TAG, "[APP] Free memory: %ld bytes", esp_get_free_heap_size());
 }
 
