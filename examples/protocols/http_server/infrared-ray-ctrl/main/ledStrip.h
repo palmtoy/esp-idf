@@ -15,13 +15,12 @@ extern "C" {
 #include "sdkconfig.h"
 
 #define BLINK_LED_GPIO GPIO_NUM_8 // esp32c3-mini on board RGB LED
-#define G_SATURATION 255
-#define G_MAX_BRIGHTNESS 255
 #define G_MAX_HUE 360
+#define G_MAX_SATURATION 255
+#define G_MAX_BRIGHTNESS 255
 
 static const char* LED_STRIP_TAG = "LED_STRIP";
 static led_strip_handle_t G_LED_STRIP;
-static uint16_t G_HUE;
 
 static void do_set_led_hsv(uint16_t hue, uint8_t saturation, uint8_t value) {
   led_strip_set_pixel_hsv(G_LED_STRIP, 0, hue, saturation, value);
@@ -29,33 +28,16 @@ static void do_set_led_hsv(uint16_t hue, uint8_t saturation, uint8_t value) {
   vTaskDelay(10 / portTICK_PERIOD_MS);
 }
 
-static void reset_hue() {
-  G_HUE = G_MAX_HUE + 1;
-}
-
-static uint16_t get_hue() {
-  if (G_HUE > G_MAX_HUE) {
-    G_HUE = rand() % G_MAX_HUE;
-  }
-  ESP_LOGI(LED_STRIP_TAG, "BlinkLed ~ hue = %d", G_HUE);
-  return G_HUE;
-}
-
-static void led_fade_in() {
-  uint16_t hue = get_hue();
+static void led_fade_in_out() {
+  uint16_t hue = rand() % G_MAX_HUE;
+  ESP_LOGI(LED_STRIP_TAG, "BlinkLed ~ hue = %d", hue);
   for (uint8_t brightness = 0; brightness < G_MAX_BRIGHTNESS; brightness++) {
-    do_set_led_hsv(hue, G_SATURATION, brightness);
+    do_set_led_hsv(hue, G_MAX_SATURATION, brightness);
   }
-  led_strip_clear(G_LED_STRIP);
-}
-
-static void led_fade_out() {
-  uint16_t hue = get_hue();
   for (uint8_t brightness = G_MAX_BRIGHTNESS; brightness > 0; brightness--) {
-    do_set_led_hsv(hue, G_SATURATION, brightness);
+    do_set_led_hsv(hue, G_MAX_SATURATION, brightness);
   }
   led_strip_clear(G_LED_STRIP);
-  reset_hue();
 }
 
 static void init_led_strip() {
@@ -78,7 +60,6 @@ static void init_led_strip() {
   /* Set all LED off to clear all pixels */
   led_strip_clear(G_LED_STRIP);
   srand((unsigned)time(NULL));
-  reset_hue();
 }
 
 #ifdef __cplusplus
