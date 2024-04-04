@@ -31,10 +31,10 @@ static void do_set_led_hsv(uint16_t hue, uint8_t saturation, uint8_t value) {
 static void led_fade_in_out() {
   uint16_t hue = rand() % G_MAX_HUE;
   ESP_LOGI(LED_STRIP_TAG, "BlinkLed ~ hue = %d", hue);
-  for (uint8_t brightness = 0; brightness < G_MAX_BRIGHTNESS; brightness++) {
+  for (uint8_t brightness = 0; brightness < G_MAX_BRIGHTNESS; brightness += 3) {
     do_set_led_hsv(hue, G_MAX_SATURATION, brightness);
   }
-  for (uint8_t brightness = G_MAX_BRIGHTNESS; brightness > 0; brightness--) {
+  for (uint8_t brightness = G_MAX_BRIGHTNESS; brightness > 0; brightness -= 3) {
     do_set_led_hsv(hue, G_MAX_SATURATION, brightness);
   }
   led_strip_clear(G_LED_STRIP);
