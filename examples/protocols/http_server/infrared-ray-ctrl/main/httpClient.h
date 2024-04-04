@@ -95,7 +95,11 @@ esp_err_t _httpEvtHandler(esp_http_client_event_t *evt) {
 
 void sendHttpRequest(char* pStrQuery) {
   esp_ip4_addr_t ipAddr = {0};
-  ESP_ERROR_CHECK(mdns_query_a(HTTP_SRV_HOST, 3000, &ipAddr)); // dns query timeout: 3s
+  esp_err_t queryRet = mdns_query_a(HTTP_SRV_HOST, 5000, &ipAddr); // dns query timeout: 5s
+  if (ESP_OK != queryRet) {
+    ESP_LOGW(HTTP_CLI_TAG, "DNS query %s.local server's ip failed", HTTP_SRV_HOST);
+    return;
+  }
   char strIpAddr[16] = {0};
   sprintf(strIpAddr, "%s", inet_ntoa(ipAddr));
   ESP_LOGI(HTTP_CLI_TAG, "%s.local server's ip: %s", HTTP_SRV_HOST, strIpAddr);
