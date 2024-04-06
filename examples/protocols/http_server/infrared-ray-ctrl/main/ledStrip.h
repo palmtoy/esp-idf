@@ -13,6 +13,7 @@ extern "C" {
 #include "esp_log.h"
 #include "led_strip.h"
 #include "sdkconfig.h"
+#include "utils.h"
 
 #define BLINK_LED_GPIO GPIO_NUM_8 // esp32c3-mini on board RGB LED
 #define G_MAX_HUE 360
@@ -52,10 +53,8 @@ static void led_fade_in_out() {
   if (G_RUNNING) {
       return;
   }
-  u16_t taskStackSize = 1024 * 4; // 4 KiB
-  u8_t taskLoopPriority = 2;
   // Create the task, storing the handle.
-  xTaskCreate(_doLedFadeInOut, "_doLedFadeInOut", taskStackSize, NULL, tskIDLE_PRIORITY + taskLoopPriority, &G_PWMLED_HANDLE);
+  xTaskCreate(_doLedFadeInOut, "_doLedFadeInOut", G_TASK_STACK_SIZE, NULL, tskIDLE_PRIORITY + TASK_LOOP_PRIORITY, &G_PWMLED_HANDLE);
 }
 
 static void init_led_strip() {

@@ -18,9 +18,7 @@ extern "C" {
 #define GPIO_INPUT_INFRARED_RAY GPIO_NUM_9 // input, pulled up, interrupt from rising edge
 #define GPIO_INPUT_PIN_SEL      (1ULL << GPIO_INPUT_INFRARED_RAY)
 #define ESP_INTR_FLAG_DEFAULT   0
-#define TASK_LOOP_PRIORITY      2
 #define G_X_QUEUE_LENGTH        16
-#define G_TASK_STACK_SIZE       (1024 * 4) // 4 KiB
 
 static const char* PIR_CTRL_TAG = "PIR_CTRL"; // PIR: passive infrared ( sensor )
 static QueueHandle_t G_X_QUEUE_OBJ = NULL;
@@ -35,13 +33,13 @@ static void gpio_task_q_recv(void *arg) {
   for (;;) {
     if (xQueueReceive(G_X_QUEUE_OBJ, &io_num, portMAX_DELAY)) {
       int ioLv = gpio_get_level(io_num);
+      printf("\n");
       ESP_LOGI(PIR_CTRL_TAG, "GPIO[%d] interrupt, level: %d", io_num, ioLv);
       if (ioLv > 0) {
         led_fade_in_out();
-        char pStrQuery[] = "switch";
-        sendHttpRequest(pStrQuery);
+        sendHttpRequest("switch");
       } else {
-        vTaskDelay(1000 / portTICK_PERIOD_MS); // 1s
+        vTaskDelay(100 / portTICK_PERIOD_MS); // 100ms
       }
     }
   }
