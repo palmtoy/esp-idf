@@ -37,7 +37,8 @@ static void gpio_task_q_recv(void *arg) {
       ESP_LOGI(PIR_CTRL_TAG, "GPIO[%d] interrupt, level: %d", io_num, ioLv);
       if (ioLv > 0) {
         led_fade_in_out();
-        sendHttpRequest("switch");
+        char pStrQuery[] = "switch";
+        sendHttpRequest(pStrQuery);
       } else {
         vTaskDelay(100 / portTICK_PERIOD_MS); // 100ms
       }
