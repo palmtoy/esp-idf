@@ -22,6 +22,7 @@ extern "C" {
 
 static const char* PIR_CTRL_TAG = "PIR_CTRL"; // PIR: passive infrared ( sensor )
 static QueueHandle_t G_X_QUEUE_OBJ = NULL;
+static time_t lastTriggerTimestamp = 0;
 
 static void IRAM_ATTR gpio_isr_handler(void *arg) {
   uint32_t gpio_num = (uint32_t)arg;
@@ -35,12 +36,26 @@ static void gpio_task_q_recv(void *arg) {
       int ioLv = gpio_get_level(io_num);
       printf("\n");
       ESP_LOGI(PIR_CTRL_TAG, "GPIO[%d] interrupt, level: %d", io_num, ioLv);
-      if (ioLv > 0) {
-        led_fade_in_out();
-        char pStrQuery[] = "switch";
-        sendHttpRequest(pStrQuery);
+      struct timeval tv;
+      if (gettimeofday(&tv, NULL) != 0) {
+        ESP_LOGE(PIR_CTRL_TAG, "Failed to obtain time. Skip...");
+        vTaskDelay(1000 / portTICK_PERIOD_MS); // 1s
       } else {
-        vTaskDelay(100 / portTICK_PERIOD_MS); // 100ms
+        ESP_LOGI(PIR_CTRL_TAG, "TimeVal-sec = %lld, ms = %ld", tv.tv_sec, tv.tv_usec / 1000);
+        if (tv.tv_sec - lastTriggerTimestamp <= 1) {
+          ESP_LOGW(PIR_CTRL_TAG, "Debounce. Skip...");
+          vTaskDelay(500 / portTICK_PERIOD_MS); // 500ms
+        } else {
+          if (ioLv > 0) {
+            lastTriggerTimestamp = tv.tv_sec;
+            led_fade_in_out();
+            char pStrQuery[] = "switch";
+            sendHttpRequest(pStrQuery);
+          } else {
+            ESP_LOGW(PIR_CTRL_TAG, "GPIO[%d] falling edge. Skip...", io_num);
+            vTaskDelay(100 / portTICK_PERIOD_MS); // 100ms
+          }
+        }
       }
     }
   }
