@@ -34,10 +34,15 @@ static void gpio_task_q_recv(void *arg) {
   gpio_num_t io_num;
   for (;;) {
     if (xQueueReceive(G_X_QUEUE_OBJ, &io_num, portMAX_DELAY)) {
-      ESP_LOGI(PIR_CTRL_TAG, "GPIO[%d] interrupt, level: %d", io_num, gpio_get_level(io_num));
-      char pStrQuery[] = "switch";
-      sendHttpRequest(pStrQuery);
-      led_fade_in_out();
+      int ioLv = gpio_get_level(io_num);
+      ESP_LOGI(PIR_CTRL_TAG, "GPIO[%d] interrupt, level: %d", io_num, ioLv);
+      if (ioLv > 0) {
+        led_fade_in_out();
+        char pStrQuery[] = "switch";
+        sendHttpRequest(pStrQuery);
+      } else {
+        vTaskDelay(1000 / portTICK_PERIOD_MS); // 1s
+      }
     }
   }
 }

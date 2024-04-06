@@ -21,6 +21,8 @@ extern "C" {
 
 static const char* LED_STRIP_TAG = "LED_STRIP";
 static led_strip_handle_t G_LED_STRIP;
+static TaskHandle_t G_PWMLED_HANDLE = NULL;
+static bool G_RUNNING = false;
 
 static void do_set_led_hsv(uint16_t hue, uint8_t saturation, uint8_t value) {
   led_strip_set_pixel_hsv(G_LED_STRIP, 0, hue, saturation, value);
@@ -28,7 +30,9 @@ static void do_set_led_hsv(uint16_t hue, uint8_t saturation, uint8_t value) {
   vTaskDelay(10 / portTICK_PERIOD_MS);
 }
 
-static void led_fade_in_out() {
+void _doLedFadeInOut(void* pvParameters) {
+  G_RUNNING = true;
+  srand((unsigned)time(NULL));
   uint16_t hue = rand() % G_MAX_HUE;
   ESP_LOGI(LED_STRIP_TAG, "BlinkLed ~ hue = %d", hue);
   for (uint8_t brightness = 0; brightness < G_MAX_BRIGHTNESS; brightness += 3) {
@@ -38,6 +42,20 @@ static void led_fade_in_out() {
     do_set_led_hsv(hue, G_MAX_SATURATION, brightness);
   }
   led_strip_clear(G_LED_STRIP);
+  G_RUNNING = false;
+  if (G_PWMLED_HANDLE != NULL) {
+      vTaskDelete(G_PWMLED_HANDLE);
+  }
+}
+
+static void led_fade_in_out() {
+  if (G_RUNNING) {
+      return;
+  }
+  u16_t taskStackSize = 1024 * 4; // 4 KiB
+  u8_t taskLoopPriority = 2;
+  // Create the task, storing the handle.
+  xTaskCreate(_doLedFadeInOut, "_doLedFadeInOut", taskStackSize, NULL, tskIDLE_PRIORITY + taskLoopPriority, &G_PWMLED_HANDLE);
 }
 
 static void init_led_strip() {
@@ -59,7 +77,6 @@ static void init_led_strip() {
   ESP_ERROR_CHECK(led_strip_new_rmt_device(&strip_config, &rmt_config, &G_LED_STRIP));
   /* Set all LED off to clear all pixels */
   led_strip_clear(G_LED_STRIP);
-  srand((unsigned)time(NULL));
 }
 
 #ifdef __cplusplus
