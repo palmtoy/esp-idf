@@ -39,21 +39,22 @@ static void gpio_task_q_recv(void *arg) {
       struct timeval tv;
       if (gettimeofday(&tv, NULL) != 0) {
         ESP_LOGE(PIR_CTRL_TAG, "Failed to obtain time. Skip...");
-        vTaskDelay(1000 / portTICK_PERIOD_MS); // 1s
+        vTaskDelay(10 / portTICK_PERIOD_MS); // 10ms
       } else {
         ESP_LOGI(PIR_CTRL_TAG, "TimeVal-sec = %lld, ms = %ld", tv.tv_sec, tv.tv_usec / 1000);
-        if (tv.tv_sec - lastTriggerTimestamp <= 1) {
+        time_t curMs = tv.tv_sec * 1000 + tv.tv_usec / 1000;
+        if (curMs - lastTriggerTimestamp <= 2 * 1000) { // 2000ms
           ESP_LOGW(PIR_CTRL_TAG, "Debounce. Skip...");
-          vTaskDelay(500 / portTICK_PERIOD_MS); // 500ms
+          vTaskDelay(10 / portTICK_PERIOD_MS); // 10ms
         } else {
           if (ioLv > 0) {
-            lastTriggerTimestamp = tv.tv_sec;
+            lastTriggerTimestamp = curMs;
             led_fade_in_out();
             char pStrQuery[] = "switch";
             sendHttpRequest(pStrQuery);
           } else {
             ESP_LOGW(PIR_CTRL_TAG, "GPIO[%d] falling edge. Skip...", io_num);
-            vTaskDelay(100 / portTICK_PERIOD_MS); // 100ms
+            vTaskDelay(10 / portTICK_PERIOD_MS); // 10ms
           }
         }
       }
