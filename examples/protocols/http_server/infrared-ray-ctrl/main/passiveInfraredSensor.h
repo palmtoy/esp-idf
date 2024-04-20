@@ -15,7 +15,7 @@ extern "C" {
 #include "httpClient.h"
 #include "ledStrip.h"
 
-#define GPIO_INPUT_INFRARED_RAY GPIO_NUM_10 // input, pulled up, interrupt from rising edge
+#define GPIO_INPUT_INFRARED_RAY GPIO_NUM_9 // input, pulled up, interrupt from rising edge
 #define GPIO_INPUT_PIN_SEL      (1ULL << GPIO_INPUT_INFRARED_RAY)
 #define ESP_INTR_FLAG_DEFAULT   0
 #define G_X_QUEUE_LENGTH        16
@@ -50,7 +50,7 @@ static void gpio_task_q_recv(void *arg) {
           if (ioLv > 0) {
             lastTriggerTimestamp = curMs;
             led_fade_in_out();
-            char pStrQuery[] = "switch";
+            char pStrQuery[] = "echo";
             sendHttpRequest(pStrQuery);
           } else {
             ESP_LOGW(PIR_CTRL_TAG, "GPIO[%d] falling edge. Skip...", io_num);

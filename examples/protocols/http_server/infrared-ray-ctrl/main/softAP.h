@@ -32,7 +32,7 @@ esp_err_t generate_ap_name() {
   }
   uint8_t mac[6];
   esp_read_mac(mac, ESP_MAC_WIFI_STA);
-  if (sprintf(G_SOFT_AP, "%s-%02x%02x", AP_NAME_PREFIX, mac[4], mac[5] ) < 0) {
+  if (sprintf(G_SOFT_AP, "%s-%02x%02x", AP_NAME_PREFIX, mac[4], mac[5] + 2 ) < 0) {
     memset(G_SOFT_AP, '\0', AP_NAME_LEN);
     memset(G_DOMAIN_NAME, '\0', DOMAIN_NAME_LEN);
     return ESP_FAIL;
