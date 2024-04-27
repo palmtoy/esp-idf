@@ -15,7 +15,7 @@ extern "C" {
 #include "sdkconfig.h"
 #include "utils.h"
 
-#define BLINK_LED_GPIO GPIO_NUM_8 // esp32c3-mini on board RGB LED
+#define BLINK_LED_GPIO GPIO_NUM_10 // esp32c3-mini on board RGB LED
 #define G_MAX_HUE 360
 #define G_MAX_SATURATION 255
 #define G_MAX_BRIGHTNESS 255
