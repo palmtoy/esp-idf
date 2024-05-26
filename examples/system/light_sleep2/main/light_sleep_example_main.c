@@ -11,11 +11,13 @@
 #include "esp_timer.h"
 #include "light_sleep_example.h"
 
+static const char* LIGHT_SLEEP_TAG = "LIGHT_SLEEP";
+
 static void light_sleep_task(void *args)
 {
     while (true)
     {
-        printf("Entering light sleep\n");
+        ESP_LOGI(LIGHT_SLEEP_TAG, "Entering light sleep ...");
         /* Get timestamp before entering sleep */
         int64_t t_before_us = esp_timer_get_time();
         /* Enter sleep mode */
@@ -34,13 +36,10 @@ static void light_sleep_task(void *args)
             wakeup_reason = "other";
             break;
         }
-        printf("Returned from light sleep, reason: %s, t=%lld ms, slept for %lld ms\n",
-               wakeup_reason, t_after_us / 1000, (t_after_us - t_before_us) / 1000);
-        if (esp_sleep_get_wakeup_cause() == ESP_SLEEP_WAKEUP_GPIO)
-        {
-            /* Waiting for the gpio inactive, or the chip will continously trigger wakeup*/
-            example_wait_gpio_inactive();
-        }
+        ESP_LOGI(LIGHT_SLEEP_TAG, "Returned from light sleep, reason: %s, t=%lld ms, slept for %lld ms",
+            wakeup_reason, t_after_us / 1000, (t_after_us - t_before_us) / 1000);
+        /* Waiting for the gpio inactive, or the chip will continously trigger wakeup*/
+        example_wait_gpio_inactive();
     }
     vTaskDelete(NULL);
 }
