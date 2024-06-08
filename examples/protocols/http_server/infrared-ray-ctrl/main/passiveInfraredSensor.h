@@ -50,7 +50,7 @@ static void gpio_task_q_recv(void *arg) {
           if (ioLv > 0) {
             lastTriggerTimestamp = curMs;
             led_fade_in_out();
-            char pStrQuery[] = "echo";
+            char pStrQuery[] = "switch";
             sendHttpRequest(pStrQuery);
           } else {
             ESP_LOGW(PIR_CTRL_TAG, "GPIO[%d] falling edge. Skip...", io_num);

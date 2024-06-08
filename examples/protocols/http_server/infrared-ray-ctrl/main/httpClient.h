@@ -14,8 +14,8 @@ extern "C" {
 #include "esp_http_client.h"
 
 #define MAX_HTTP_OUTPUT_BUFFER  256
-#define HTTP_SRV_HOST "LZG-MacBookPro15"
-#define HTTP_SRV_PORT 8081
+#define HTTP_SRV_HOST "smartonoff-2d5f"
+#define HTTP_SRV_PORT 80
 
 static const char *HTTP_CLI_TAG = "HTTP_CLIENT";
 
