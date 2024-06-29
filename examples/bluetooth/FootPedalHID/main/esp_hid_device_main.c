@@ -201,7 +201,6 @@ void ble_hid_demo_task_mouse(void *pvParameters)
 }
 #endif
 
-#if CONFIG_EXAMPLE_HID_DEVICE_ROLE && CONFIG_EXAMPLE_HID_DEVICE_ROLE == 2
 #define CASE(a, b, c)  \
                 case a: \
 				buffer[0] = b;  \
@@ -358,13 +357,15 @@ void ble_hid_demo_task_kbd(void *pvParameters)
         vTaskDelay(10 / portTICK_PERIOD_MS);
     }
 }
-#endif
+
 static esp_hid_raw_report_map_t ble_report_maps[] = {
 #if !CONFIG_BT_NIMBLE_ENABLED || CONFIG_EXAMPLE_HID_DEVICE_ROLE == 1
     /* This block is compiled for bluedroid as well */
     {
-        .data = mediaReportMap,
-        .len = sizeof(mediaReportMap)
+        // .data = mediaReportMap,
+        // .len = sizeof(mediaReportMap)
+        .data = keyboardReportMap,
+        .len = sizeof(keyboardReportMap)
     }
 #elif CONFIG_EXAMPLE_HID_DEVICE_ROLE && CONFIG_EXAMPLE_HID_DEVICE_ROLE == 2
     {
@@ -556,14 +557,16 @@ void ble_hid_demo_task(void *pvParameters)
         ++n;
         if (send_volum_up) {
             ESP_LOGI(TAG, "Send the volume +++");
-            esp_hidd_send_consumer_value(HID_CONSUMER_VOLUME_UP, true);
-            vTaskDelay(100 / portTICK_PERIOD_MS);
-            esp_hidd_send_consumer_value(HID_CONSUMER_VOLUME_UP, false);
+            // esp_hidd_send_consumer_value(HID_CONSUMER_VOLUME_UP, true);
+            // vTaskDelay(100 / portTICK_PERIOD_MS);
+            // esp_hidd_send_consumer_value(HID_CONSUMER_VOLUME_UP, false);
+            send_keyboard('A');
         } else {
             ESP_LOGI(TAG, "Send the volume ---");
-            esp_hidd_send_consumer_value(HID_CONSUMER_VOLUME_DOWN, true);
-            vTaskDelay(100 / portTICK_PERIOD_MS);
-            esp_hidd_send_consumer_value(HID_CONSUMER_VOLUME_DOWN, false);
+            // esp_hidd_send_consumer_value(HID_CONSUMER_VOLUME_DOWN, true);
+            // vTaskDelay(100 / portTICK_PERIOD_MS);
+            // esp_hidd_send_consumer_value(HID_CONSUMER_VOLUME_DOWN, false);
+            send_keyboard('Z');
         }
         if (n % 12 == 0) {
             send_volum_up = true;
@@ -571,7 +574,7 @@ void ble_hid_demo_task(void *pvParameters)
         } else if (n % 6 == 0) {
             send_volum_up = false;
         }
-        vTaskDelay(2000 / portTICK_PERIOD_MS);
+        vTaskDelay(10 * 1000 / portTICK_PERIOD_MS);
     }
 }
 #endif
@@ -893,7 +896,8 @@ void app_main(void)
 #elif CONFIG_EXAMPLE_HID_DEVICE_ROLE == 3
     ret = esp_hid_ble_gap_adv_init(ESP_HID_APPEARANCE_MOUSE, ble_hid_config.device_name);
 #else
-    ret = esp_hid_ble_gap_adv_init(ESP_HID_APPEARANCE_GENERIC, ble_hid_config.device_name);
+    ret = esp_hid_ble_gap_adv_init(ESP_HID_APPEARANCE_KEYBOARD, ble_hid_config.device_name);
+    // ret = esp_hid_ble_gap_adv_init(ESP_HID_APPEARANCE_GENERIC, ble_hid_config.device_name);
 #endif
     ESP_ERROR_CHECK( ret );
 #if CONFIG_BT_BLE_ENABLED
