@@ -174,6 +174,19 @@ void send_keyboard(char c)
     esp_hidd_dev_input_set(s_ble_hid_param.hid_dev, 0, 1, buffer, 8);
 }
 
+void send_ctrl()
+{
+    static uint8_t buffer[8] = {USB_HID_MODIFIER_LEFT_CTRL};
+    esp_hidd_dev_input_set(s_ble_hid_param.hid_dev, 0, 1, buffer, 8);
+    for (int i = 10; i > 0; i--) {
+        vTaskDelay(1 * 1000 / portTICK_PERIOD_MS);
+    }
+    esp_hidd_dev_input_set(s_ble_hid_param.hid_dev, 0, 1, buffer, 8);
+    memset(buffer, 0, sizeof(uint8_t) * 8);
+    esp_hidd_dev_input_set(s_ble_hid_param.hid_dev, 0, 1, buffer, 8);
+    ESP_LOGI(TAG, "Sending ctrl finish.");
+}
+
 static esp_hid_raw_report_map_t ble_report_maps[] = {
     {
         .data = keyboardReportMap,
@@ -194,24 +207,22 @@ static esp_hid_device_config_t ble_hid_config = {
 
 void ble_hid_demo_task(void *pvParameters)
 {
-    static bool send_volum_up = true;
+    static bool sendCtrlFlag = true;
     int n = 0;
     while (1) {
         ++n;
-        if (send_volum_up) {
-            ESP_LOGI(TAG, "Send char A ...");
-            send_keyboard('A');
+        if (sendCtrlFlag) {
+            send_ctrl();
         } else {
-            ESP_LOGI(TAG, "Send char Z ...");
-            send_keyboard('Z');
+            ESP_LOGI(TAG, "Send a char A ...");
+            send_keyboard('A');
+            vTaskDelay(3 * 1000 / portTICK_PERIOD_MS);
         }
-        if (n % 12 == 0) {
-            send_volum_up = true;
-            n = 0;
-        } else if (n % 6 == 0) {
-            send_volum_up = false;
+        if (n % 2 == 0) {
+            sendCtrlFlag = true;
+        } else {
+            sendCtrlFlag = false;
         }
-        vTaskDelay(10 * 1000 / portTICK_PERIOD_MS);
     }
 }
 
